@@ -10,8 +10,6 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
-background_color = (156, 156, 156)
-
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
 keys = pygame.key.get_pressed()
@@ -22,7 +20,6 @@ bg = pygame.image.load("img/flappy_bg.png").convert()
 # background logic
 scroll = 0
 tiles = math.ceil(screen.get_width() / bg.get_width()) + 1
-print(tiles)
 
 while running:
     # poll for events
@@ -30,9 +27,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-    # fill the screen with a color to wipe away anything from last frame
-    # screen.fill("gray")
 
     # draw scrolling background
     for i in range(0, tiles):
@@ -64,9 +58,9 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.update()
     pygame.display.flip()
+
     # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
+    # dt is delta time in seconds since last frame, used for framerate-independent physics.
     dt = clock.tick(60) / 1000
 
 pygame.quit()
