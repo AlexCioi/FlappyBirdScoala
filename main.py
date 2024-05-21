@@ -51,6 +51,7 @@ oldPressed = keys
 bg = pygame.image.load("img/flappy_bg.png").convert()
 
 flappyimg = pygame.image.load("img/flapy.png").convert()
+ghostimg = pygame.image.load("img/ghost_powerup.jpg").convert()
 if random.randint(0 ,100) > 75: #randomursu
     flappyimg = pygame.image.load("img/ursu.jpg").convert()
 
@@ -67,6 +68,8 @@ pipe_timer = 0
 reset = False
 
 score = 0
+trecemprin = False
+scoreTrecemPrin = 0
 
 scroll_speed = 400
 gravity = 450
@@ -88,6 +91,8 @@ while running:
         powerups.clear()
         player_bbox = pygame.Rect(player_pos.x - 20, player_pos.y - 20, 40, 40)
         score = 0
+        trecemprin = False
+        scoreTrecemPrin = 0
 
     # poll for events / nu e problema noastra credits pygame
     # pygame.QUIT event means the user clicked X to close your window
@@ -105,9 +110,6 @@ while running:
     scroll -= scroll_speed * dt  # scroll speed
     if abs(scroll) > bg.get_width():
         scroll = 0
-
-    text_surface = my_font.render(str(score), False, (0, 0, 0))
-    screen.blit(text_surface, (0, 0))
 
     # Jucatorul cade continuu ca la flappy
     player_pos.y += gravity * dt
@@ -127,15 +129,13 @@ while running:
     if player_pos.y - 35 > screen.get_height():
         reset = True
 
-        # se genereaza pipe uri dupa timer
+    # se genereaza pipe uri dupa timer
     pipe_timer += dt
     if pipe_timer >= 2:  # Adjust this value to change the frequency of pipes
         pipes.append(Pipe(1280,scroll_speed))
         pipe_timer = 0
         if random.randint(0, 100) > 75:
             powerups.append((powerup(1100,scroll_speed)))
-
-
 
     # aici se face update la pipe uri
     for pipe in pipes:
@@ -146,33 +146,40 @@ while running:
         power.move(dt)
         power.draw(screen)
 
+    score_text = my_font.render(str(score), False, (0, 0, 0))
+    screen.blit(score_text, (0, 0))
+
     for pipe in pipes:
-        if player_bbox.colliderect(pygame.Rect(pipe.x, 0, pipe.width, pipe.top_height)) or \
-                player_bbox.colliderect(pygame.Rect(pipe.x, 720 - pipe.bottom_height, pipe.width, pipe.bottom_height)):
-            reset = True
-        if player_pos.x > pipe.x + pipe.width and not pipe.passed:
+        if not trecemprin:
+            if player_bbox.colliderect(pygame.Rect(pipe.x, 0, pipe.width, pipe.top_height)) or \
+                    player_bbox.colliderect(pygame.Rect(pipe.x, 720 - pipe.bottom_height, pipe.width, pipe.bottom_height)):
+                reset = True
+
+        if player_pos.x > pipe.x + 50 + pipe.width and not pipe.passed:
             pipe.passed = True
             score += 1
-
 
     for power in powerups:
         if player_bbox.colliderect((power.rect)):
             trecemprin = True
+            scoreTrecemPrin = score
 
+    if trecemprin:
+        screen.blit(ghostimg, (40, 20))
+
+    if score - scoreTrecemPrin > 2:
+        scoreTrecemPrin = 0
+        trecemprin = False
 
     #varu la sfarsit sa nu avem lag
     #pygame.draw.rect(screen, "white", player_bbox)
     screen.blit(flappyimg, pygame.math.Vector2(player_pos.x - 20, player_pos.y - 20))  # afisarea playerului dupa imagine
-
-
-
 
     oldPressed = keys
 
     # flip() the display to put your work on screen / nu e problema noastra credits pygame
     pygame.display.update()
     pygame.display.flip()
-
 
     # limits FPS to 60 / nu e problema noastra credits pygame
     # dt is delta time in seconds since last frame, used for framerate-independent physics.
