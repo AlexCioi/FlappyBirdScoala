@@ -2,6 +2,10 @@ import pygame
 import math
 import random
 
+# URGENT
+# DACA ESTI URSU SI TE ATINGI CU CATALIN POWERUP SA IASA INIMI CU IUBIRE
+
+
 class Pipe:
     def __init__(self, x, speed):
         self.x = x
@@ -51,7 +55,7 @@ oldPressed = keys
 bg = pygame.image.load("img/flappy_bg.png").convert()
 
 flappyimg = pygame.image.load("img/flapy.png").convert()
-ghostimg = pygame.image.load("img/ghost_powerup.jpg").convert()
+ghostimg = pygame.image.load("img/ghost.jpg").convert()
 if random.randint(0 ,100) > 75: #randomursu
     flappyimg = pygame.image.load("img/ursu.jpg").convert()
 
