@@ -2,6 +2,14 @@ import pygame
 import math
 import random
 
+def clamp(n, min, max):
+    if n < min:
+        return min
+    elif n > max:
+        return max
+    else:
+        return n
+
 # URGENT
 # DACA ESTI URSU SI TE ATINGI CU CATALIN POWERUP SA IASA INIMI CU IUBIRE
 class CBullet:
@@ -74,8 +82,14 @@ bg = pygame.image.load("img/flappy_bg.png").convert()
 
 flappyimg = pygame.image.load("img/flapy.png").convert()
 ghostimg = pygame.image.load("img/ghost.jpg").convert()
-if random.randint(0 ,100) > 75: #randomursu
+
+suntem_ursu = False
+if random.randint(0, 100) > 70: #randomursu
     flappyimg = pygame.image.load("img/ursu.jpg").convert()
+    suntem_ursu = True
+
+inimioare = pygame.image.load("img/heart_icon.png").convert()
+inimioare_alpha = 0
 
 catavape = pygame.image.load("img/catavape.png").convert()
 
@@ -191,10 +205,20 @@ while running:
             pipe.passed = True
             score += 1
 
+    inimioare.set_alpha(clamp(inimioare_alpha, 0, 255))
+    if inimioare_alpha > 0:
+        inimioare_alpha = clamp(inimioare_alpha - 250 * dt, 0, 500)
+        screen.blit(inimioare, (player_pos.x + 20, player_pos.y - 20))
+        screen.blit(inimioare, (player_pos.x - 85, player_pos.y - 20))
+        screen.blit(inimioare, (player_pos.x - 32, player_pos.y - 90))
+        screen.blit(inimioare, (player_pos.x - 32, player_pos.y + 45))
+
     for power in powerups:
-        if player_bbox.colliderect((power.rect)):
+        if player_bbox.colliderect(power.rect):
             trecemprin = True
             scoreTrecemPrin = score
+            if suntem_ursu:
+                inimioare_alpha = 500
 
         if power.x > screen.get_width() / 2:
             if pygame.Rect(raketa.x, raketa.y, 30, 15).colliderect(power.rect):
