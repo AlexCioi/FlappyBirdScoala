@@ -4,7 +4,25 @@ import random
 
 # URGENT
 # DACA ESTI URSU SI TE ATINGI CU CATALIN POWERUP SA IASA INIMI CU IUBIRE
+class CBullet:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.speed = 1000
+        self.active = False
 
+    def draw(self, screen):
+        pygame.draw.rect(screen, (0, 255, 0), (self.x, self.y, 30, 15))
+
+    def start(self, x_start, y_start):
+        self.active = True
+        self.x = x_start
+        self.y = y_start
+
+    def move(self, dt):
+        self.x += self.speed * dt
+        if self.x > screen.get_width():
+            self.active = False;
 
 class Pipe:
     def __init__(self, x, speed):
@@ -23,12 +41,12 @@ class Pipe:
         pygame.draw.rect(screen, (0, 255, 0), (self.x, 720 - self.bottom_height, self.width, self.bottom_height))
 
 
-class powerup:
+class PowerUp:
     def __init__(self, x, speed):
-        self.x = x - random.randint(0 ,200)
+        self.x = x - random.randint(0, 100) + 500
         self.speed = speed
-        self.y = screen.get_height()/2 - 20 - random.randint(-200,200)
-        self.rect = pygame.Rect(x-20,  self.y - 20,40,40)
+        self.y = screen.get_height() / 2 - 20 - random.randint(-200, 200)
+        self.rect = pygame.Rect(x-20,  self.y - 20, 40, 40)
 
     def move(self, dt):
         self.x -= self.speed * dt
@@ -83,6 +101,8 @@ pygame.font.init() # you have to call this at the start,
                    # if you want to use this module.
 my_font = pygame.font.SysFont('Comic Sans MS', 30)
 
+raketa = CBullet(0, 0)
+
 while running:
     if reset:
         vertical_vel = 0
@@ -97,6 +117,7 @@ while running:
         score = 0
         trecemprin = False
         scoreTrecemPrin = 0
+        raketa.active = False
 
     # poll for events / nu e problema noastra credits pygame
     # pygame.QUIT event means the user clicked X to close your window
@@ -133,13 +154,20 @@ while running:
     if player_pos.y - 35 > screen.get_height():
         reset = True
 
+    if keys[pygame.K_LSHIFT] and not oldPressed[pygame.K_LSHIFT] and not raketa.active:
+        raketa.start(player_pos.x, player_pos.y)
+
+    if raketa.active:
+        raketa.move(dt)
+        raketa.draw(screen)
+
     # se genereaza pipe uri dupa timer
     pipe_timer += dt
     if pipe_timer >= 2:  # Adjust this value to change the frequency of pipes
         pipes.append(Pipe(1280,scroll_speed))
         pipe_timer = 0
         if random.randint(0, 100) > 75:
-            powerups.append((powerup(1100,scroll_speed)))
+            powerups.append((PowerUp(1100, scroll_speed)))
 
     # aici se face update la pipe uri
     for pipe in pipes:
@@ -167,6 +195,12 @@ while running:
         if player_bbox.colliderect((power.rect)):
             trecemprin = True
             scoreTrecemPrin = score
+
+        if power.x > screen.get_width() / 2:
+            if pygame.Rect(raketa.x, raketa.y, 30, 15).colliderect(power.rect):
+                raketa.active = False
+                trecemprin = True
+                scoreTrecemPrin = score
 
     if trecemprin:
         screen.blit(ghostimg, (40, 20))
